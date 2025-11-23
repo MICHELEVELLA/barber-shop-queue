@@ -1,0 +1,109 @@
+Prompt for Barber Shop Live Queue and Booking System (Single-File HTML/Tailwind/JS)
+
+Goal: Create a fully responsive, single-page web application (index.html) for a barber shop that manages a live customer queue, estimates wait times based on services, and includes a placeholder payment option. All HTML, Tailwind CSS, and JavaScript must be contained within this one file.
+
+I. Technology Stack & Constraints
+
+File: index.html (Must be a single file).
+
+Styling: Use Tailwind CSS for a professional, mobile-first design. Load Tailwind via CDN.
+
+Persistence: Use Firebase Firestore for real-time, persistent storage of user data and the live queue. Assume Firebase SDKs for Auth and Firestore are loaded via CDN scripts.
+
+Authentication: Use Firebase Auth. The user must log in using a phone number (simulated using a simple text input for demonstration, but the concept must be implemented). Use anonymous sign-in as a fallback.
+
+II. Required Database Structure (Firestore)
+
+The application will manage two main public collections accessible by all users:
+
+services Collection: Stores service configuration data.
+
+Fields: id (string), name (string, e.g., "Standard Cut"), duration (number, minutes), price (number, USD).
+
+queue_entries Collection: Stores the live queue data.
+
+Fields:
+
+timestamp: Date/Timestamp (when the user joined, used for queue order).
+
+userId: String (The Firebase user ID).
+
+phoneNumber: String (The number used for login, for display).
+
+serviceId: String (ID linking to the selected service).
+
+serviceName: String (e.g., "Standard Cut").
+
+durationMinutes: Number (Estimated time for this service).
+
+status: String (One of: 'Waiting', 'In Progress', 'Completed', 'Canceled').
+
+paymentStatus: String (One of: 'Pending', 'Paid').
+
+III. Application Components (UI Flow)
+
+1. Initial State (Login/Sign Up)
+
+A modal or central card asking the user to enter their phone number.
+
+A button labeled "Enter Shop Queue".
+
+Implementation Note: When the user submits the number, the system should sign them in using signInAnonymously() (or use a placeholder function for phone auth) and then store the phone number against their userId in a local/session context.
+
+2. Service Selection (Queue Entry)
+
+Once logged in, display a list of available services fetched from the services collection (e.g., Haircut - 30 min, Shave - 20 min).
+
+Each service card should show the name, duration, and price.
+
+A button/interaction to "Join Queue" for the selected service.
+
+3. The Live Queue View (Customer Dashboard)
+
+This is the main view, updated in real-time via onSnapshot on the queue_entries collection.
+
+Customer's Position: Clearly display: "You are customer #X in the queue."
+
+Estimated Wait Time: Calculate the estimated time by summing the durationMinutes of all customers before the current customer whose status is 'Waiting' or 'In Progress'. Display: "Estimated wait time: XX minutes."
+
+Total Customers Waiting: Display the count of customers before them.
+
+Action Buttons:
+
+"Cancel My Spot" (removes their entry from the queue).
+
+"Pay Now" (See Section IV).
+
+IV. Core JavaScript Logic
+
+Firebase Setup: Initialize and handle anonymous/custom token authentication using the provided global variables (__app_id, __firebase_config, __initial_auth_token).
+
+calculateQueue(currentUserId) Function:
+
+Fetches the queue_entries collection, sorted by timestamp ascending.
+
+Iterates through the queue to find the current user's position (X).
+
+Calculates the total duration for all entries before or equal to the current user (where status is not 'Completed' or 'Canceled').
+
+Updates the UI with the position and estimated time.
+
+joinQueue(service) Function:
+
+Creates a new document in queue_entries with the selected service details, status: 'Waiting', and paymentStatus: 'Pending'.
+
+handlePayment() Function (Placeholder):
+
+Create a simple modal/message box that simulates payment processing.
+
+The user clicks "Pay Now."
+
+The app updates their queue_entries document's paymentStatus to 'Paid'. No actual card processing is required; a visual state change is sufficient.
+
+V. Design & Aesthetics
+
+Use a clean, modern barber-themed design (e.g., dark background, gold or chrome accents, rounded corners).
+
+Ensure the design is fully responsive and looks excellent on mobile devices.
+
+The live queue must update instantly and smoothly using Tailwind's utility classes.
